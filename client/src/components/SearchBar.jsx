@@ -2,7 +2,8 @@ import React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { searchRecipe, selectPage } from "../actions";
+import { selectPage } from "../actions";
+import { searchRecipe } from "../actions";
 
 export default function SearchBar () {
 

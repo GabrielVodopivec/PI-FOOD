@@ -6,6 +6,8 @@ import Home from './components/Home';
 
 import Detail from './components/Detail';
 import RecipeCreator from './components/RecipeCreator';
+
+import Editor from './components/Editor';
 /* import NavBar from './components/NavBar'; */
 
 
@@ -19,6 +21,7 @@ function App() {
           <Route path = '/home' element = { <Home /> } />
           <Route path = '/detail/:id' element = { <Detail /> } />
           <Route path = '/form' element = { <RecipeCreator /> } />
+          <Route path = '/recipeEditor/:id' element = { <Editor /> } />
         </Routes>  
       </div>
     </BrowserRouter>

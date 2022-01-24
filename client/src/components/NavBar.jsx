@@ -9,7 +9,6 @@ import AlphabeticOrder from "./AlphabeticOrder";
 import ScoreOrder from "./ScoreOrder";
 import Paginado from "./Paginado";
 import SearchByDiet from "./SearchDiet";
-import ErrorComponent from "./ErrorComponent";
 import PaginadoLoop from "./PaginadoLoop";
 
 export default function NavBar () {
@@ -17,40 +16,49 @@ export default function NavBar () {
     const dispatch = useDispatch();
 
     const quantity = useSelector( state => state.recipes);
-    const error = useSelector( state => state.mensajeDeError )
+    const error = useSelector ( state => state.mensajeDeError )
 
     const handleClick = () => {
         dispatch( getRecipes() )
     }
     return (
         <>
-        { ( error.length ) ? <ErrorComponent /> : <div className="navbar">
-            <div className="conteinerNavBar">
-                <div className="title-allRecipes" >
-                    <h1 className="pageTitle" >R C TAS PARA TO2</h1>
-                    <div className="quantity-button">
-                    <button className="btn-allRecipes-newRecipes" onClick={handleClick}> All Recipes </button>
-                    { ( quantity.length ) ? <div className="quantity"> {`We found ${quantity.length} recipes`} </div> : null }
+            {   
+                <div className="navbar">
+                <div className="conteinerNavBar">
+                    <div className="title-allRecipes" >
+                        <h1 className="pageTitle" >R C TAS PARA TO2</h1>
+                        <div className="quantity-button">
+                        <button className="btn-allRecipes-newRecipes" onClick={ handleClick }> All Recipes </button>
+                        { 
+                            ( quantity.length && !error.length ) ? 
+                            ( quantity.length !== 1 ) ? 
+                            <div className="quantity"> {`We found ${quantity.length} recipes`} </div> :
+                            <div className="quantity"> {`We found ${quantity.length} recipe`} </div> :
+                            null 
+                        }
+                        </div>
+                    </div>
+                    <div className="inputs" >
+                        <SearchBar/>
+                        <div className="orderInputs">
+                            <AlphabeticOrder />
+                            <ScoreOrder />
+                            <SearchByDiet />
+                        </div>
+                        <PaginadoLoop />
+                        <Paginado />
+                    </div>
+                    <div className="create-recipe">
+                        <h2 className="createRecipeTitle">Create your own recipe</h2>
+                        <Link to ='/form'>
+                            <button className="btn-allRecipes-newRecipes">New Recipe</button>
+                        </Link>
+                    </div>
                     </div>
                 </div>
-                <div className="inputs" >
-                    <SearchBar/>
-                    <div className="orderInputs">
-                        <AlphabeticOrder />
-                        <ScoreOrder />
-                        <SearchByDiet />
-                    </div>
-                    <PaginadoLoop />
-                    <Paginado />
-                </div>
-                <div className="create-recipe">
-                    <h2 className="createRecipeTitle">Create your own recipe</h2>
-                    <Link to ='/form'>
-                        <button className="btn-allRecipes-newRecipes">New Recipe</button>
-                    </Link>
-                </div>
-                </div>
-        </div>}
+            }
         </>
+        
     )
 }

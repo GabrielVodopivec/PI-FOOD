@@ -54,6 +54,10 @@ module.exports = (sequelize) => {
     },
     instructions: {
       type: DataTypes.ARRAY(DataTypes.TEXT)
+    },
+    dbRecipe: {
+      type: DataTypes.BOOLEAN,
+      defaultValue:true
     }
 
   });

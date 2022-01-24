@@ -1,15 +1,21 @@
 import axios from 'axios';
+
 import { 
     ALPHABETIC_ORDER, 
-    CREATE_RECIPE, 
+    CLEAR_ERROR,  
+    DELETE_RECIPE,  
     ERROR, 
     GET_ALL_RECIPES, 
     GET_DIETS, 
+    NEW_RECIPE, 
+    RECIPE_CREATED, 
     RECIPE_DETAIL, 
     SCORE_ORDER, 
     SEARCH_RECIPE_BY_DIET, 
     SEARCH_RECIPE_BY_NAME, 
-    SELECT_PAGE} from '../actionTypes';
+    SELECT_PAGE,
+    UPDATED_RECIPE,
+    } from '../actionTypes';
 
 export const getRecipes = () => {
     return dispatch => {
@@ -23,7 +29,6 @@ export const getRecipes = () => {
         })
     }
 }
-
 export const getDiets = () => {
     return dispatch => {
         axios(`http://localhost:3001/diets`)
@@ -33,7 +38,6 @@ export const getDiets = () => {
         }))
     }
 }
-
 export const searchRecipe = (name) => {
     return dispatch => {
         axios(`http://localhost:3001/recipes?name=${name}`)
@@ -47,14 +51,12 @@ export const searchRecipe = (name) => {
         }))
     }
 }
-
 export const searchByDiet = ( diet ) => {
     return {
         type: SEARCH_RECIPE_BY_DIET,
         payload: diet
     }
 }
-
 export const recipeDetail = (id) => {
     return dispatch => {
         axios(`http://localhost:3001/recipes/${id}`)
@@ -67,7 +69,6 @@ export const recipeDetail = (id) => {
         })
     }
 }
-
 export const createRecipe = ( {
     title,
     img,
@@ -78,7 +79,7 @@ export const createRecipe = ( {
     dishTypes,
     instructions
 } ) => {
-    return dispatch => {
+    return (dispatch) => {
         axios.post(`http://localhost:3001/recipes`, {
             title,
             img,
@@ -89,33 +90,80 @@ export const createRecipe = ( {
             dishTypes,
             instructions
         })
-        .then ( () => dispatch({
-            type:CREATE_RECIPE,
-        }))
+        .then ( dispatch({
+            type:RECIPE_CREATED,
+            })
+        )
         .catch ( err => {
             console.log(err)
         })
     }
 
 }
-
+export const newRecipe = () => {
+    return {
+        type: NEW_RECIPE
+    }
+}
 export const alphabeticOrder = ( orderType ) => {
     return {
         type: ALPHABETIC_ORDER,
         payload: orderType
     }
 }
-
 export const scoreOrder = ( orderType ) => {
     return {
         type: SCORE_ORDER,
         payload: orderType
     }
 }
-
 export const selectPage = (number) => {
     return {
         type: SELECT_PAGE,
         payload: number
     }
 }
+export const clearError = () => {
+    return  {
+        type:CLEAR_ERROR
+    }
+}
+export const updateRecipe = ({
+    id,
+    title,
+    img,
+    diets,
+    score,
+    healthScore,
+    summary,
+    dishTypes,
+    instructions
+}) => {
+    return dispatch => {
+        axios.put(`http://localhost:3001/recipes/${id}`, {
+            title,
+            img,
+            diets,
+            score,
+            healthScore,
+            summary,
+            dishTypes,
+            instructions
+        })
+        .then( dispatch({
+            type:UPDATED_RECIPE
+        }))
+        .catch(err=>{
+            console.log(err)
+        })
+    }
+}
+
+export const deleteRecipe = ( id ) => {
+    return dispatch => {
+        axios.delete(`http://localhost:3001/recipes/${id}`)
+        .then( dispatch({
+            type:DELETE_RECIPE
+        }))
+    }
+} 

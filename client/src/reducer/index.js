@@ -1,23 +1,31 @@
 
 import { 
     ALPHABETIC_ORDER, 
+    CLEAR_ERROR, 
+    DELETE_RECIPE, 
     ERROR, 
     GET_ALL_RECIPES, 
-    GET_DIETS, RECIPE_DETAIL, 
+    GET_DIETS, NEW_RECIPE, RECIPE_CREATED, RECIPE_DETAIL, 
     SCORE_ORDER, 
     SEARCH_RECIPE_BY_DIET, 
     SEARCH_RECIPE_BY_NAME, 
-    SELECT_PAGE } from "../actionTypes";
+    SELECT_PAGE, 
+    UPDATED_RECIPE} from "../actionTypes";
 
-    const objectStates = {
-        recipes: [],
-        detail: [],
-        forFilter: [],
+const objectStates = {
+    recipes: [],
+    detail: [],
+    forFilter: [],
     dietsTypes: [],
+    created: false,
+    updated: false,
+    deleted:false,
     mensajeDeError:'', 
-    recipesPerPage: 8,
+    recipesPerPage: 36,
     page: 1  
 };
+
+
 
 const rootReducer = ( state = objectStates, action) => {
 
@@ -78,12 +86,12 @@ const rootReducer = ( state = objectStates, action) => {
             const alphabeticSorter = array => {
             if (array.length <= 1) return array;
 
-            let pivot = array[0];
+            let pivot = array[array.length-1]
             let izq = [];
             let der = [];
             
-            for (var i = 1; i < array.length; i++) {
-                if (array[i].title < pivot.title) {
+            for (var i = 0; i < array.length - 1; i++) {
+                if (array[i].title.toLowerCase() < pivot.title.toLowerCase()) {
                     izq.push(array[i]);
                 } else {
                     der.push(array[i]);
@@ -141,6 +149,33 @@ const rootReducer = ( state = objectStates, action) => {
                 ...state,
                 mensajeDeError: action.payload,
                 
+            }
+        case CLEAR_ERROR:
+            return {
+                ...state,
+                mensajeDeError:''
+            }
+        case RECIPE_CREATED:
+            return {
+                ...state,
+                created: true
+            } 
+        case NEW_RECIPE:
+            return {
+                ...state,
+                created: false,
+                updated: false
+            }
+        case UPDATED_RECIPE:{
+            return {
+                ...state,
+                updated: true
+            }
+        }
+        case DELETE_RECIPE: 
+            return {
+                ...state,
+                deleted: true
             }
         default: return state;
     }

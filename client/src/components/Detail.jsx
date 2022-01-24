@@ -2,8 +2,10 @@ import React from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+
 import { recipeDetail } from "../actions";
-import RecipeDetail from "./RecipeDetail";
+
+import  RecipeDetail  from "./RecipeDetail";
 
 export default function Detail () {
 
@@ -13,6 +15,7 @@ export default function Detail () {
     const recipe = useSelector( state => state.detail);
     
     useEffect( () => {
+        console.log('se montó el componente')
         dispatch( recipeDetail( id ) );
     }, [dispatch, id])
 

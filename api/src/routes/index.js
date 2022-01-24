@@ -2,7 +2,7 @@
 require('dotenv').config();
 const { API_KEY_1, API_KEY_2, API_KEY_3, API_KEY_4, API_KEY_5, API_KEY_6, API_KEY_7, API_KEY_9 } = process.env;
 
-
+const API_KEY_10 = 0321321
 const { Router } = require('express');
 // Importar todos los routers;
 // Ejemplo: const authRouter = require('./auth.js');
@@ -22,7 +22,7 @@ const apiInfo = () => {
     let offset = 0;
     let arrInfo = [];
     while ( offset < 100 ) {
-        arrInfo.push(axios(`https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY_4}&addRecipeInformation=true&offset=${offset}`))
+        arrInfo.push(axios(`https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY_3}&addRecipeInformation=true&offset=${offset}`))
         offset = offset + 10;
     }  
     return arrInfo;
@@ -70,7 +70,11 @@ const apiRecipes = Promise.all( apiInfo() )
         });
         console.log( 'API recipes ready!' );
         return infoRecipes;
-    });
+    })
+    .catch( error => {
+        console.log(error)
+    })
+    
 
 /* ----------------------------------------------------------------------------------------- */
 /* --------- LLAMADO A LA BASE DE DATOS ---------------------------------------------------- */
@@ -94,9 +98,9 @@ const dbRecipes = () => Recipes.findAll({
 
 
 const allInfoRecipes = () =>  {
-    return Promise.all( [apiRecipes, dbRecipes()] )
+    return Promise.all( [ dbRecipes(), apiRecipes ] )
     .then( ( response ) => {
-        return [...response[0], ...response[1]];
+        return [ ...response[0], ...response[1] ];
     })
     .catch( ( error ) => {
         console.log( error );
@@ -172,32 +176,21 @@ router.get( '/diets', async ( req, res ) => {
         { name:'Paleo' },
         { name:'Primal' },
         { name:'Low FODMAP' },
-        { name:'Whole30' },
-    ]
-    /* const diets = [
-         'Gluten Free' , 
-         'Ketogenic' , 
-         'Vegetarian' ,
-         'Vegan' ,
-         'Pescetarian' ,
-         'Lacto-Vegetarian' ,
-         'Ovo-Vegetarian' ,
-         'Paleo' ,
-         'Primal' ,
-         'Low FODMAP' ,
-         'Whole30' ,
-    ] */
+        { name:'Whole30' }
+    ];
 
     try {
-        const filledDb = await Diets.findAll()
-        console.log('hola')
+        const filledDb = await Diets.findAll();
+
         if( !filledDb.length ) {
-            const allDietsInDb = await Diets.bulkCreate( diets )
-            return res.status( 200 ).send( allDietsInDb )
-        }    
+            const allDietsInDb = await Diets.bulkCreate( diets );
+            return res.status( 200 ).send( allDietsInDb );
+        }   
+
         res.status( 200 ).send( filledDb );
+
     } catch ( error ) {
-        res.status( 400 ).send( "Request Failed" )
+        res.status( 400 ).send( "Request Failed" );
     };
 
 });
@@ -253,6 +246,66 @@ router.post( '/recipes', async ( req, res ) => {
         res.status( 400 ).send( "Request Failed" );
     };
 
+    allRecipes = allInfoRecipes();
+})
+
+router.put('/recipes/:id', async ( req, res )=> {
+    const {
+        title,
+        img,
+        diets,
+        score,
+        healthScore,
+        summary,
+        dishTypes,
+        instructions
+    } = req.body;
+    
+    const { id } = req.params
+    try{
+        const recipeToUpdate = await Recipes.findByPk( id )
+        const updated = await recipeToUpdate.update({
+            title,
+            img,
+            score,
+            healthScore,
+            summary,
+            dishTypes,
+            instructions
+        })  
+
+        const dietsDb = await Diets.findAll({
+            where: {
+                name: {
+                    [ Op.in ]: diets
+                }
+            }
+        });
+        
+        const updatedRecipe = await updated.setDiets( dietsDb )
+        
+        res.status(200).send( updatedRecipe )
+
+    } catch ( error ) {
+        console.log( error )
+    }
+
+    allRecipes = allInfoRecipes();
+
+})
+
+router.delete('/recipes/:id', async ( req, res ) => {
+    const { id } = req.params
+    console.log(id)
+    try {
+        
+        const deletedRecipe = await Recipes.destroy({
+            where: { id: id }
+        })
+        res.status( 200 ).send( {data: 'Recipe Deleted', recipe:deletedRecipe} )
+    } catch ( error ) {
+        console.log( error )
+    }
     allRecipes = allInfoRecipes();
 })
 
